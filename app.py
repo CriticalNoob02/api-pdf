@@ -7,7 +7,6 @@ app = Flask(__name__)
 @app.route('/read', methods=['POST'])
 def extractPDFs_reader():
     if not request.files:
-        request.
         return jsonify('Infelizmente não recebi nenhum arquivo em PDF para ler...')
     
     else:
