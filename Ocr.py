@@ -18,61 +18,71 @@ def changeFormat(url):
         page = doc.load_page(i)
         link = page.get_links()
 
-# Ajusta as cores para melhorar a leitura;
-def changeColor(url, name):
-    # Gray transform;
-    img = cv2.imread(url, cv2.IMREAD_GRAYSCALE)
-    
-    # DualColor transform;
-    _, img2Color = cv2.threshold(img, 110, 245, cv2.THRESH_BINARY)
-    cv2.imshow('img2Color', img2Color)
+# Dividindo imagem;
+def cutImg(url):
+    img = cv2.imread(url)
 
-    # # Contours create;
-    # contours, hier = cv2.findContours(img2Color, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+    # Recuperando informação do tamanho da imagem;
+    row, col, _ = img.shape
 
-    # # Contours aplly;
-    # cv2.drawContours(img, contours, -1, (0, 255, 0), 2)
-    # cv2.imshow("cont", img)
+    # Removendo cores da imagem;
+    imgGray = cv2.cvtColor (img,cv2.COLOR_BGR2GRAY)
 
-    # Save IMG;
-    cv2.imwrite(f"./src/reader/imgs/{name}.png" ,img2Color)
-    url2 = (f"./src/reader/imgs/{name}.png")
-    
-    return url2
+    if row > 1000:
+        # Cortando imagem na vertical;
+        cut = round(row/3)
+
+        imgCut1 = imgGray[0:cut, 0:col]
+        imgCut2 = imgGray[cut:(cut*2), 0:col]
+        imgCut3 = imgGray[(cut*2):(cut*3), 0:col]
+
+        cv2.imwrite(f"./cut/cut_img1.png" ,imgCut1)
+        cv2.imwrite(f"./cut/cut_img2.png" ,imgCut2)
+        cv2.imwrite(f"./cut/cut_img3.png" ,imgCut3)
+
+    elif col > 1000:
+        # Cortando imagem na horizontal;
+        cut = round(col/3)
+
+        imgCut1 = imgGray[0:row, 0:cut]
+        imgCut2 = imgGray[0:row, cut:(cut*2)]
+        imgCut3 = imgGray[0:row, (cut*2):(cut*3)]
+
+        cv2.imwrite(f"./cut/cut_img1.png" ,imgCut1)
+        cv2.imwrite(f"./cut/cut_img2.png" ,imgCut2)
+        cv2.imwrite(f"./cut/cut_img3.png" ,imgCut3)
 
 # Faz a leitura e escrita da Imagem;
 def readImg(url):
     img = cv2.imread(url)
     text = pytesseract.image_to_string(img)
-    print(text)
+    return text
 
 # -=-=-=-= Função que engloba os Passos;
-def aaa(file):
+def ocr(file):
     changeFormat(file)
+
+    # Criando array para o texto lido;
+    array = []
 
     # Criando um loop com a quantidade de arquivos na pasta {imgs};
     path = './imgs'
     for root, dirs, files in os.walk(path):
         for i in range(len(files)):
-            print(files[i])
+            img = cv2.imread(f'./imgs/{files[i]}')
 
+            # Recuperando informação do tamanho da imagem;
+            row, col, _ = img.shape
+            if row or col >= 1000:
+                cutImg(f'./imgs/{files[i]}')
 
-aaa('./PDFs/file.pdf')
-
-
-
-
-
-
-
-# path = './cypress/downloads'
-
-# for root, dirs, files in os.walk(path):
-#     for i in range(len(files)):
-#         market = root.split('/')
-#         url = (os.path.join(os.path.realpath(root), files[i]))
-#         print(os.path.join(os.path.realpath(root), files[i]))
-#         name = f'{market[-1]}/Palhoça'
-#         id = i
-
-#         changeFormat(url, name, id)
+            for root2, dirs2, files2 in os.walk('./cut'):
+                if len(files2) == 3:
+                     array.append(readImg(f'./cut/{files2[0]}'))
+                     array.append(readImg(f'./cut/{files2[1]}'))
+                     array.append(readImg(f'./cut/{files2[2]}'))
+                else:
+                   array.append(readImg(f'./imgs/{files[i]}')) 
+    
+    print(array)
+    return array
