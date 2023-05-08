@@ -84,5 +84,4 @@ def ocr(file):
                 else:
                    array.append(readImg(f'./imgs/{files[i]}')) 
     
-    print(array)
     return array
