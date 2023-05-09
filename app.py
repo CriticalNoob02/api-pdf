@@ -1,14 +1,13 @@
 from Reader import transcribe
 from Ocr import ocr
-from flask import Flask, jsonify, request, flash
+from flask import Flask, jsonify, request
 
 app = Flask(__name__)
 
-@app.route('/read', methods=['POST'])
+@app.route('/reader', methods=['POST'])
 def extractPDFs_reader():
     if not request.files:
-        return jsonify('Infelizmente não recebi nenhum arquivo em PDF para ler...')
-    
+        return jsonify('Infelizmente não recebi nenhum arquivo em PDF para ler...')  
     else:
         # Recebendo o arquivo da requisição;
         pdf_file = request.files['pdf_file']
@@ -25,8 +24,7 @@ def extractPDFs_reader():
 @app.route('/ocr', methods=['POST'])
 def extractPDFs_ocr():
     if not request.files:
-        return jsonify('Infelizmente não recebi nenhum arquivo em PDF para ler...')
-    
+        return jsonify('Infelizmente não recebi nenhum arquivo em PDF para ler...')    
     else:
             # Recebendo o arquivo da requisição;
         pdf_file = request.files['pdf_file']
@@ -39,6 +37,5 @@ def extractPDFs_ocr():
 
         # Resposta enviada em formato JSON;
         return jsonify(text)
-
 
 app.run(port=5000, host='localhost', debug=True)
