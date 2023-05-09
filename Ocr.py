@@ -17,6 +17,8 @@ def changeFormat(url):
     for i in range(doc.page_count):
         page = doc.load_page(i)
         link = page.get_links()
+    
+    os.remove(url)
 
 # Dividindo imagem;
 def cutImg(url):
@@ -73,15 +75,19 @@ def ocr(file):
 
             # Recuperando informação do tamanho da imagem;
             row, col, _ = img.shape
+
+            # Cortar a imagem caso seja grande;
             if row or col >= 1000:
                 cutImg(f'./imgs/{files[i]}')
 
+            # Loop para percorrer a pasta cut;
             for root2, dirs2, files2 in os.walk('./cut'):
                 if len(files2) == 3:
-                     array.append(readImg(f'./cut/{files2[0]}'))
-                     array.append(readImg(f'./cut/{files2[1]}'))
-                     array.append(readImg(f'./cut/{files2[2]}'))
+                     for i in len(files2):
+                        array.append(readImg(f'./cut/{files2[i]}'))
+                        os.remove(f'./cut/{files2[i]}')
                 else:
                    array.append(readImg(f'./imgs/{files[i]}')) 
+                   os.remove(f'./imgs/{files[i]}')
     
     return array
